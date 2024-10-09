@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>net.democritus</groupId>
+    <artifactId>nsx-parent</artifactId>
+    <version>2024.1.0</version>
+  </parent>
+
+  <groupId>org.normalizedsystems</groupId>
+  <artifactId>pdf-generator-expanders</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+
+  <properties>
+    <!-- anchor:version-properties:start -->
+    <prime-core.version>2024.4.5</prime-core.version>
+    <prime-data.version>2024.0.3</prime-data.version>
+    <expanders.version>7.7.2</expanders.version>
+    <slf4j-simple.version>2.0.16</slf4j-simple.version>
+    <junit5.version>5.10.3</junit5.version>
+    <expanders-assert.version>0.9.1</expanders-assert.version>
+    <expanders-maven-plugin.version>2024.3.2</expanders-maven-plugin.version>
+    <!-- anchor:version-properties:end -->
+
+    <sonar.cpd.exclusions>**/*</sonar.cpd.exclusions>
+    <!-- set language level for sonarqube to 17 -->
+    <sonar.java.source>17</sonar.java.source>
+  </properties>
+
+  <!-- anchor:dependencies:start -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit5.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>net.democritus.metamodel</groupId>
+      <artifactId>prime-core</artifactId>
+      <version>${prime-core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.democritus</groupId>
+      <artifactId>Expanders</artifactId>
+      <version>${expanders.version}</version>
+    </dependency>
+
+    <!--TEST-->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j-simple.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.democritus</groupId>
+      <artifactId>prime-data</artifactId>
+      <version>${prime-data.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.democritus.metamodel</groupId>
+      <artifactId>prime-test-support</artifactId>
+      <version>${prime-core.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.democritus.test</groupId>
+      <artifactId>expanders-assert</artifactId>
+      <version>${expanders-assert.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <!-- anchor:dependencies:end -->
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <release>17</release>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit5.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>net.democritus.maven.plugins</groupId>
+        <artifactId>expanders-maven-plugin</artifactId>
+        <version>${expanders-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>expansionResource</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>nsx-sonar</id>
+      <activation>
+        <property>
+          <name>env.JENKINS_HOME</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.12</version>
+            <executions>
+              <execution>
+                <id>coverage</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+                <phase>initialize</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonarsource.scanner.maven</groupId>
+            <artifactId>sonar-maven-plugin</artifactId>
+            <version>4.0.0.4121</version>
+            <executions>
+              <execution>
+                <id>sonar</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sonar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>nsx-dependency-analysis</id>
+      <activation>
+        <property>
+          <name>env.JENKINS_HOME</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.cyclonedx</groupId>
+            <artifactId>cyclonedx-maven-plugin</artifactId>
+            <inherited>false</inherited>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

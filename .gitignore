@@ -1,0 +1,15 @@
+# IntelliJ
+.idea
+*.iml
+
+# VSCode
+.vscode
+
+# Eclipse
+.project
+.settings
+.classpath
+
+# Maven
+target
+pom.xml.versionsBackup
